@@ -1,0 +1,5 @@
+pydantic
+numpy
+openai
+fastapi
+uvicorn
