@@ -9,9 +9,10 @@ def read_root():
     return {"status": "ok", "environment": "modest"}
 
 
-@app.get("/reset")
+@app.post("/reset")
 def reset():
     return env.reset()
+
 
 @app.get("/state")
 def state():
