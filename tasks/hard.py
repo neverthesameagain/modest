@@ -1,23 +1,24 @@
-from env.environment import Environment
-from env.models import Action
-import numpy as np
-
-def hard_task(env: Environment):
-    observation = env.reset()
-    toxicity_values = []
-
-    while observation.platform_metrics["step"] < 8:
-        toxicity_values.append(observation.platform_metrics["toxicity_level"])
-        for post in observation.posts:
-            if post.toxicity > 0.6:
-                env.step(Action(action_type="delete", target_id=post.id))
+def grade(final_state, trajectory=None) -> float:
+    if isinstance(final_state, dict):
+        avg_tox = final_state.get("metadata", {}).get("avg_true_toxicity", 0.0)
+        engagement = final_state.get("metadata", {}).get("engagement", 1.0)
+    else:
+        avg_tox = final_state.metadata.get("avg_true_toxicity", 0.0)
+        engagement = final_state.metadata.get("engagement", 1.0)
+        
+    stability = 1.0
+    if trajectory:
+        temps = []
+        for obs in trajectory:
+            if isinstance(obs, dict):
+                temps.append(obs.get("metadata", {}).get("thread_temperature", 0.0))
             else:
-                env.step(Action(action_type="ignore", target_id=post.id))
-        observation = env.state()
-
-    stability = 1 - np.var(toxicity_values)
-    return (
-        0.4 * (1 - observation.platform_metrics["toxicity_level"])
-        + 0.3 * observation.platform_metrics["engagement"]
-        + 0.3 * stability
-    )
+                temps.append(obs.metadata.get("thread_temperature", 0.0))
+                
+        if len(temps) > 1:
+            mean = sum(temps) / len(temps)
+            variance = sum((x - mean) ** 2 for x in temps) / len(temps)
+            stability = max(0.0, 1.0 - (variance * 4)) # amplify variance penalty
+            
+    score = 0.3 * max(0.0, 1.0 - avg_tox) + 0.3 * max(0.0, engagement) + 0.4 * stability
+    return float(score)

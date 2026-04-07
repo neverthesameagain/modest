@@ -1,7 +1,6 @@
-environment:
-  name: modest
-  description: Adaptive Content Moderation Under Uncertainty
-  tasks:
-    - easy
-    - medium
-    - hard
+name: modest
+description: Adaptive Content Moderation Under Uncertainty
+tasks:
+  - easy
+  - medium
+  - hard

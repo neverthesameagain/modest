@@ -1,14 +1,9 @@
-# Use Python 3.10 as the base image
 FROM python:3.10
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the project files into the container
-COPY . /app
+COPY . .
 
-# Install the required dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
-# Run the inference script
-CMD ["python", "inference.py"]
+CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "7860"]

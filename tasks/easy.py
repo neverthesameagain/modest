@@ -1,13 +1,8 @@
-from env.environment import Environment
-from env.models import Action
-
-def easy_task(env: Environment):
-    observation = env.reset()
-    while observation.platform_metrics["step"] < 8:
-        for post in observation.posts:
-            if post.toxicity > 0.6:
-                env.step(Action(action_type="delete", target_id=post.id))
-            else:
-                env.step(Action(action_type="ignore", target_id=post.id))
-        observation = env.state()
-    return 1 - observation.platform_metrics["toxicity_level"]
+def grade(final_state, trajectory=None) -> float:
+    if isinstance(final_state, dict):
+        avg_tox = final_state.get("metadata", {}).get("avg_true_toxicity", 0.0)
+    else:
+        avg_tox = final_state.metadata.get("avg_true_toxicity", 0.0)
+        
+    score = max(0.0, 1.0 - avg_tox)
+    return float(score)
