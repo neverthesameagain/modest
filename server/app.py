@@ -4,6 +4,11 @@ from server.modest_environment import ModestEnvironment
 app = FastAPI()
 env = ModestEnvironment()
 
+@app.get("/")
+def read_root():
+    return {"status": "ok", "environment": "modest"}
+
+
 @app.get("/reset")
 def reset():
     return env.reset()
