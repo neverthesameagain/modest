@@ -3,30 +3,19 @@ import json
 from openai import OpenAI
 from server.modest_environment import ModestEnvironment
 from env.models import Action
+from tasks import TASKS
 from tasks import easy, medium, hard
 
-def main():
-    api_base_url = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
-    model_name = os.getenv("MODEL_NAME", "gpt-4o")
-    api_key = os.getenv("HF_TOKEN") or os.getenv("API_KEY", "dummy")
-    task_name = os.getenv("MY_ENV_TASK", "easy")
-    
-    client = OpenAI(base_url=api_base_url, api_key=api_key)
+GRADERS = {"easy": easy.grade, "medium": medium.grade, "hard": hard.grade}
+
+def run_task(client, model_name, task_name, grader):
+    """Run a single task and return the score."""
     env = ModestEnvironment()
-    
-    if task_name == "hard":
-        grader = hard.grade
-    elif task_name == "medium":
-        grader = medium.grade
-    else:
-        grader = easy.grade
-    
     obs = env.reset()
     print(f"[START] task={task_name} env=modest model={model_name}")
     
     trajectory = [obs]
     rewards = []
-    
     done = False
     step = 0
     
@@ -83,7 +72,24 @@ def main():
     success = score > 0.0
     
     rewards_str = ",".join([f"{r:.2f}" for r in rewards])
-    print(f"[END] success={str(success).lower()} steps={step} score={score:.2f} rewards={rewards_str}")
+    print(f"[END] task={task_name} success={str(success).lower()} steps={step} score={score:.2f} rewards={rewards_str}")
+    return score
+
+def main():
+    api_base_url = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
+    model_name = os.getenv("MODEL_NAME", "gpt-4o")
+    api_key = os.getenv("HF_TOKEN") or os.getenv("API_KEY", "dummy")
+    task_name = os.getenv("MY_ENV_TASK", "all")
+    
+    client = OpenAI(base_url=api_base_url, api_key=api_key)
+    
+    if task_name == "all":
+        # Run all tasks — needed for validator to see 3 tasks with graders
+        for t in TASKS:
+            run_task(client, model_name, t.id, t.grade)
+    else:
+        grader = GRADERS.get(task_name, easy.grade)
+        run_task(client, model_name, task_name, grader)
 
 if __name__ == "__main__":
     main()
