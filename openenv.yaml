@@ -13,11 +13,17 @@ observation_model: env.models:Observation
 
 tasks:
   - id: easy
+    name: "Clean the Queue"
     description: "Clean the Queue — Graded solely on final toxicity level."
+    difficulty: easy
     grader: tasks.easy:grade
   - id: medium
+    name: "Surgical Precision"
     description: "Surgical Precision — Balance toxicity removal with engagement."
+    difficulty: medium
     grader: tasks.medium:grade
   - id: hard
+    name: "De-escalation Expert"
     description: "De-escalation Expert — Minimize toxicity, preserve engagement, stabilize temperature."
+    difficulty: hard
     grader: tasks.hard:grade

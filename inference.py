@@ -72,24 +72,21 @@ def run_task(client, model_name, task_name, grader):
     success = score > 0.0
     
     rewards_str = ",".join([f"{r:.2f}" for r in rewards])
-    print(f"[END] task={task_name} success={str(success).lower()} steps={step} score={score:.2f} rewards={rewards_str}")
+    print(f"[END] success={str(success).lower()} steps={step} score={score:.2f} rewards={rewards_str}")
     return score
 
 def main():
     api_base_url = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
     model_name = os.getenv("MODEL_NAME", "gpt-4o")
     api_key = os.getenv("HF_TOKEN") or os.getenv("API_KEY", "dummy")
-    task_name = os.getenv("MY_ENV_TASK", "all")
+    
+    # Use MODEST_TASK, TASK_ID, or fallback to 'easy'
+    task_name = os.getenv("MODEST_TASK") or os.getenv("TASK_ID", "easy")
     
     client = OpenAI(base_url=api_base_url, api_key=api_key)
     
-    if task_name == "all":
-        # Run all tasks — needed for validator to see 3 tasks with graders
-        for t in TASKS:
-            run_task(client, model_name, t.id, t.grade)
-    else:
-        grader = GRADERS.get(task_name, easy.grade)
-        run_task(client, model_name, task_name, grader)
+    grader = GRADERS.get(task_name, easy.grade)
+    run_task(client, model_name, task_name, grader)
 
 if __name__ == "__main__":
     main()
