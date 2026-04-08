@@ -80,13 +80,18 @@ def main():
     model_name = os.getenv("MODEL_NAME", "gpt-4o")
     api_key = os.getenv("HF_TOKEN") or os.getenv("API_KEY", "dummy")
     
-    # Use MODEST_TASK, TASK_ID, or fallback to 'easy'
-    task_name = os.getenv("MODEST_TASK") or os.getenv("TASK_ID", "easy")
+    # Run all tasks if no specific task is specified (hackathon parser expectation)
+    task_name = os.getenv("MODEST_TASK") or os.getenv("TASK_ID", "all")
     
     client = OpenAI(base_url=api_base_url, api_key=api_key)
     
-    grader = GRADERS.get(task_name, easy.grade)
-    run_task(client, model_name, task_name, grader)
+    if task_name == "all":
+        # Evaluator runs this script once and needs to see 3 tasks with graders logged
+        for t in TASKS:
+            run_task(client, model_name, t.id, t.grade)
+    else:
+        grader = GRADERS.get(task_name, easy.grade)
+        run_task(client, model_name, task_name, grader)
 
 if __name__ == "__main__":
     main()

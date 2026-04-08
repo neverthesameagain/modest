@@ -47,7 +47,8 @@ class ModestEnvironment(Environment):
             return "Sample generic text"
         return random.choice(pool)
 
-    def reset(self) -> Observation:
+    def reset(self, task_id: str = None, seed: int = None) -> Observation:
+        self.task_id = task_id or "easy"
         self._state = State(episode_id=str(uuid.uuid4()), step_count=0)
         self.post_id_counter = 0
         

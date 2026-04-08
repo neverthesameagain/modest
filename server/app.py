@@ -32,8 +32,9 @@ def schema():
 
 
 @app.post("/reset")
-def reset():
-    return env.reset()
+def reset(req: dict = None):
+    req_task = req.get("task_id") if req else None
+    return env.reset(task_id=req_task)
 
 
 @app.get("/state")

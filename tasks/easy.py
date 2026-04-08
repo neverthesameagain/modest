@@ -1,9 +1,13 @@
 def grade(final_state, trajectory=None) -> float:
     """Easy: Clean the Queue. Graded on final toxicity level."""
-    if isinstance(final_state, dict):
-        avg_tox = final_state.get("metadata", {}).get("avg_true_toxicity", 0.5)
-    else:
-        avg_tox = final_state.metadata.get("avg_true_toxicity", 0.5)
+    avg_tox = 0.5
+    try:
+        if isinstance(final_state, dict):
+            avg_tox = final_state.get("metadata", {}).get("avg_true_toxicity", 0.5)
+        elif hasattr(final_state, "metadata"):
+            avg_tox = final_state.metadata.get("avg_true_toxicity", 0.5)
+    except Exception:
+        pass
 
     score = max(0.0, 1.0 - avg_tox)
     # Clamp strictly within (0, 1) — validator rejects exact 0.0 or 1.0
