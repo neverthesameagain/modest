@@ -1,6 +1,23 @@
+spec_version: 1
 name: modest
-description: Adaptive Content Moderation Under Uncertainty
+type: space
+runtime: fastapi
+app: server.app:app
+port: 7860
+description: >
+  An OpenEnv-compliant RL environment for adaptive content moderation
+  under uncertainty. Agents must manage toxicity while preserving community
+  engagement through post deletion, user banning, or strategic inaction.
+action_model: env.models:Action
+observation_model: env.models:Observation
+
 tasks:
-  - easy
-  - medium
-  - hard
+  - id: easy
+    description: "Clean the Queue — Graded solely on final toxicity level."
+    grader: tasks.easy:grade
+  - id: medium
+    description: "Surgical Precision — Balance toxicity removal with engagement."
+    grader: tasks.medium:grade
+  - id: hard
+    description: "De-escalation Expert — Minimize toxicity, preserve engagement, stabilize temperature."
+    grader: tasks.hard:grade

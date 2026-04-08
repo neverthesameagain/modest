@@ -8,6 +8,28 @@ env = ModestEnvironment()
 def read_root():
     return {"status": "ok", "environment": "modest"}
 
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
+
+@app.get("/metadata")
+def metadata():
+    return {
+        "name": "modest",
+        "description": "Adaptive Content Moderation Under Uncertainty",
+        "version": "1.0.0"
+    }
+
+@app.get("/schema")
+def schema():
+    from env.models import Action, Observation
+    from openenv.core.env_server.types import State
+    return {
+        "action": Action.model_json_schema(),
+        "observation": Observation.model_json_schema(),
+        "state": State.model_json_schema()
+    }
+
 
 @app.post("/reset")
 def reset():
